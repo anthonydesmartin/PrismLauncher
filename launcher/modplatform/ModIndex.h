@@ -57,6 +57,11 @@ QString toString(Side side);
 Side fromString(QString side);
 }  // namespace SideUtils
 
+namespace DependencyTypeUtils {
+QString toString(DependencyType type);
+DependencyType fromString(const QString& str);
+}  // namespace DependencyTypeUtils
+
 namespace ProviderCapabilities {
 const char* name(ResourceProvider);
 QString readableName(ResourceProvider);
