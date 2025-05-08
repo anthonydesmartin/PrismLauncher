@@ -37,8 +37,8 @@
 #pragma once
 
 #include <QWidget>
-#include "BaseInstance.h"
 #include "JavaCommon.h"
+#include "ui/widgets/JavaProfileSettingsWidget.h"
 
 namespace Ui {
 class JavaSettingsWidget;
@@ -48,21 +48,13 @@ class JavaSettingsWidget : public QWidget {
     Q_OBJECT
 
    public:
-    explicit JavaSettingsWidget(QWidget* parent = nullptr) : JavaSettingsWidget(nullptr, nullptr) {}
-    explicit JavaSettingsWidget(InstancePtr instance, QWidget* parent = nullptr);
+    explicit JavaSettingsWidget(QWidget* parent = nullptr);
     ~JavaSettingsWidget() override;
 
     void loadSettings();
     void saveSettings();
 
-   private slots:
-    void onJavaBrowse();
-    void onJavaAutodetect();
-    void onJavaTest();
-    void updateThresholds();
-
    private:
-    InstancePtr m_instance;
     Ui::JavaSettingsWidget* m_ui;
-    unique_qobject_ptr<JavaCommon::TestCheck> m_checker;
+    QList<JavaProfileSettingsWidget*> m_profiles;
 };

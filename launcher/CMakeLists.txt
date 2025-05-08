@@ -1152,6 +1152,8 @@ SET(LAUNCHER_SOURCES
     ui/widgets/MinecraftSettingsWidget.cpp
     ui/widgets/JavaSettingsWidget.h
     ui/widgets/JavaSettingsWidget.cpp
+    ui/widgets/JavaProfileSettingsWidget.h
+    ui/widgets/JavaProfileSettingsWidget.cpp
 
     # GUI - instance group view
     ui/instanceview/InstanceProxyModel.cpp
@@ -1239,6 +1241,7 @@ qt_wrap_ui(LAUNCHER_UI
     ui/widgets/AppearanceWidget.ui
     ui/widgets/MinecraftSettingsWidget.ui
     ui/widgets/JavaSettingsWidget.ui
+    ui/widgets/JavaProfileSettingsWidget.ui
     ui/dialogs/CopyInstanceDialog.ui
     ui/dialogs/CreateShortcutDialog.ui
     ui/dialogs/ProfileSetupDialog.ui
