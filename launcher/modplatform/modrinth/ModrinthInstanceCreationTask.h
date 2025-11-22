@@ -10,8 +10,9 @@
 #include <QVector>
 
 #include "BaseInstance.h"
-#include "InstanceCreationTask.h"
+#include "InstanceTask.h"
 
+class Resource;
 class ModrinthCreationTask final : public InstanceCreationTask {
     Q_OBJECT
     struct File {
@@ -37,14 +38,21 @@ class ModrinthCreationTask final : public InstanceCreationTask {
 
         m_original_instance_id = std::move(original_instance_id);
     }
+    virtual ~ModrinthCreationTask() override;
 
     bool abort() override;
 
-    bool updateInstance() override;
-    bool createInstance() override;
+    void createInstance();
+    void executeTask() override;
+
+   private slots:
+    void finishInstall();
 
    private:
     bool parseManifest(const QString&, std::vector<File>&, bool set_internal_data = true, bool show_optional_dialog = true);
+
+    void ensureMetaLoop();
+    void setManagedPack(BaseInstance* instance);
 
    private:
     QWidget* m_parent = nullptr;
@@ -58,4 +66,8 @@ class ModrinthCreationTask final : public InstanceCreationTask {
     std::optional<InstancePtr> m_instance;
 
     QString m_root_path = "minecraft";
+
+    QStringList m_files_to_remove;
+
+    QHash<QString, Resource*> m_resources;
 };

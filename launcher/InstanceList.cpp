@@ -911,7 +911,7 @@ class InstanceStaging : public Task {
     const unsigned maxBackoff = 16;
 
    public:
-    InstanceStaging(InstanceList* parent, InstanceTask* child, SettingsObjectPtr settings)
+    InstanceStaging(InstanceList* parent, InstanceCreationTask* child, SettingsObjectPtr settings)
         : m_parent(parent), backoff(minBackoff, maxBackoff)
     {
         m_stagingPath = parent->getStagedInstancePath();
@@ -962,7 +962,7 @@ class InstanceStaging : public Task {
     void childSucceeded()
     {
         unsigned sleepTime = backoff();
-        if (m_parent->commitStagedInstance(m_stagingPath, *m_child.get(), m_child->group(), *m_child.get())) {
+        if (m_parent->commitStagedInstance(m_stagingPath, *m_child.get(), m_child->group())) {
             emitSucceeded();
             return;
         }
@@ -995,11 +995,11 @@ class InstanceStaging : public Task {
      */
     ExponentialSeries backoff;
     QString m_stagingPath;
-    unique_qobject_ptr<InstanceTask> m_child;
+    unique_qobject_ptr<InstanceCreationTask> m_child;
     QTimer m_backoffTimer;
 };
 
-Task* InstanceList::wrapInstanceTask(InstanceTask* task)
+Task* InstanceList::wrapInstanceTask(InstanceCreationTask* task)
 {
     return new InstanceStaging(this, task, m_globalSettings);
 }
@@ -1027,10 +1027,7 @@ QString InstanceList::getStagedInstancePath()
     return result;
 }
 
-bool InstanceList::commitStagedInstance(const QString& path,
-                                        InstanceName const& instanceName,
-                                        QString groupName,
-                                        InstanceTask const& commiting)
+bool InstanceList::commitStagedInstance(const QString& path, InstanceCreationTask const& task, QString groupName)
 {
     if (groupName.isEmpty() && !groupName.isNull())
         groupName = QString();
@@ -1038,12 +1035,12 @@ bool InstanceList::commitStagedInstance(const QString& path,
     QString instID;
     InstancePtr inst;
 
-    auto should_override = commiting.shouldOverride();
+    auto should_override = task.shouldOverride();
 
     if (should_override) {
-        instID = commiting.originalInstanceID();
+        instID = task.originalInstanceID();
     } else {
-        instID = FS::DirNameFromString(instanceName.modifiedName(), m_instDir);
+        instID = FS::DirNameFromString(task.modifiedName(), m_instDir);
     }
 
     Q_ASSERT(!instID.isEmpty());

@@ -194,7 +194,7 @@ NewInstanceDialog::~NewInstanceDialog()
     delete ui;
 }
 
-void NewInstanceDialog::setSuggestedPack(const QString& name, InstanceTask* task)
+void NewInstanceDialog::setSuggestedPack(const QString& name, InstanceCreationTask* task)
 {
     creationTask.reset(task);
 
@@ -210,7 +210,7 @@ void NewInstanceDialog::setSuggestedPack(const QString& name, InstanceTask* task
     m_buttons->button(QDialogButtonBox::Ok)->setEnabled(allowOK);
 }
 
-void NewInstanceDialog::setSuggestedPack(const QString& name, QString version, InstanceTask* task)
+void NewInstanceDialog::setSuggestedPack(const QString& name, QString version, InstanceCreationTask* task)
 {
     creationTask.reset(task);
 
@@ -247,13 +247,12 @@ void NewInstanceDialog::setSuggestedIcon(const QString& key)
     ui->iconButton->setIcon(icon);
 }
 
-InstanceTask* NewInstanceDialog::extractTask()
+InstanceCreationTask* NewInstanceDialog::extractTask()
 {
-    InstanceTask* extracted = creationTask.release();
+    InstanceCreationTask* extracted = creationTask.release();
 
-    InstanceName inst_name(ui->instNameTextBox->placeholderText().trimmed(), importVersion);
-    inst_name.setName(ui->instNameTextBox->text().trimmed());
-    extracted->setName(inst_name);
+    extracted->setName(ui->instNameTextBox->text().trimmed());
+    extracted->setOriginalName(ui->instNameTextBox->placeholderText().trimmed(), importVersion);
 
     extracted->setGroup(instGroup());
     extracted->setIcon(iconKey());

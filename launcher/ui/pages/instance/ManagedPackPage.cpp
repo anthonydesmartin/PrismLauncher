@@ -186,7 +186,7 @@ bool ManagedPackPage::shouldDisplay() const
     return m_inst->isManagedPack();
 }
 
-bool ManagedPackPage::runUpdateTask(InstanceTask* task)
+bool ManagedPackPage::runUpdateTask(InstanceCreationTask* task)
 {
     Q_ASSERT(task);
 
@@ -354,9 +354,8 @@ void ModrinthManagedPackPage::update()
 
     auto extracted = new InstanceImportTask(version.downloadUrl, this, std::move(extra_info));
 
-    InstanceName inst_name(m_inst->getManagedPackName(), version.version);
-    inst_name.setName(m_inst->name().replace(m_inst->getManagedPackVersionName(), version.version));
-    extracted->setName(inst_name);
+    extracted->setOriginalName(m_inst->getManagedPackName(), version.version);
+    extracted->setName(m_inst->name().replace(m_inst->getManagedPackVersionName(), version.version));
 
     extracted->setGroup(APPLICATION->instances()->getInstanceGroup(m_inst->id()));
     extracted->setIcon(m_inst->iconKey());

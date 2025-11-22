@@ -12,7 +12,7 @@
 #include "settings/SettingsObject.h"
 #include "tasks/Task.h"
 
-class InstanceCopyTask : public InstanceTask {
+class InstanceCopyTask : public InstanceCreationTask {
     Q_OBJECT
    public:
     explicit InstanceCopyTask(InstancePtr origInstance, const InstanceCopyPrefs& prefs);

@@ -27,7 +27,7 @@
 
 namespace Technic {
 
-class SingleZipPackInstallTask : public InstanceTask {
+class SingleZipPackInstallTask : public InstanceCreationTask {
     Q_OBJECT
 
    public:

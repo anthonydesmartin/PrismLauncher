@@ -32,13 +32,12 @@ bool ModrinthCreationTask::abort()
     if (!canAbort())
         return false;
 
-    m_abort = true;
     if (m_task)
         m_task->abort();
     return Task::abort();
 }
 
-bool ModrinthCreationTask::updateInstance()
+void ModrinthCreationTask::executeTask()
 {
     auto instance_list = APPLICATION->instances();
 
@@ -53,14 +52,16 @@ bool ModrinthCreationTask::updateInstance()
         if (!inst) {
             inst = instance_list->getInstanceById(originalName());
 
-            if (!inst)
-                return false;
+            if (!inst) {
+                createInstance();
+                return;
+            }
         }
     }
 
     QString index_path = FS::PathCombine(m_stagingPath, "modrinth.index.json");
     if (!parseManifest(index_path, m_files, true, false))
-        return false;
+        return;
 
     auto version_name = inst->getManagedPackVersionName();
     m_root_path = QFileInfo(inst->gameRoot()).fileName();
@@ -68,11 +69,13 @@ bool ModrinthCreationTask::updateInstance()
 
     if (shouldConfirmUpdate()) {
         auto should_update = askIfShouldUpdate(m_parent, version_str);
-        if (should_update == ShouldUpdate::SkipUpdating)
-            return false;
+        if (should_update == ShouldUpdate::SkipUpdating) {
+            createInstance();
+            return;
+        }
         if (should_update == ShouldUpdate::Cancel) {
-            m_abort = true;
-            return false;
+            emitAborted();
+            return;
         }
     }
 
@@ -154,8 +157,8 @@ bool ModrinthCreationTask::updateInstance()
                                                    QMessageBox::Warning, QMessageBox::Ok | QMessageBox::Cancel);
 
         if (dialog->exec() == QDialog::DialogCode::Rejected) {
-            m_abort = true;
-            return false;
+            emitAborted();
+            return;
         }
     }
 
@@ -165,19 +168,17 @@ bool ModrinthCreationTask::updateInstance()
     m_instance = inst;
 
     // We let it go through the createInstance() stage, just with a couple modifications for updating
-    return false;
+    createInstance();
 }
 
 // https://docs.modrinth.com/docs/modpacks/format_definition/
-bool ModrinthCreationTask::createInstance()
+void ModrinthCreationTask::createInstance()
 {
-    QEventLoop loop;
-
     QString parent_folder(FS::PathCombine(m_stagingPath, "mrpack"));
 
     QString index_path = FS::PathCombine(m_stagingPath, "modrinth.index.json");
     if (m_files.empty() && !parseManifest(index_path, m_files, true, true))
-        return false;
+        return;
 
     // Keep index file in case we need it some other time (like when changing versions)
     QString new_index_place(FS::PathCombine(parent_folder, "modrinth.index.json"));
@@ -193,8 +194,8 @@ bool ModrinthCreationTask::createInstance()
 
         // Apply the overrides
         if (!FS::move(override_path, mcPath)) {
-            setError(tr("Could not rename the overrides folder:\n") + "overrides");
-            return false;
+            emitFailed(tr("Could not rename the overrides folder:\n") + "overrides");
+            return;
         }
     }
 
@@ -206,8 +207,8 @@ bool ModrinthCreationTask::createInstance()
 
         // Apply the overrides
         if (!FS::overrideFolder(mcPath, client_override_path)) {
-            setError(tr("Could not rename the client overrides folder:\n") + "client overrides");
-            return false;
+            emitFailed(tr("Could not rename the client overrides folder:\n") + "client overrides");
+            return;
         }
     }
 
@@ -234,11 +235,7 @@ bool ModrinthCreationTask::createInstance()
         instance.setIconKey("modrinth");
     }
 
-    // Don't add managed info to packs without an ID (most likely imported from ZIP)
-    if (!m_managed_id.isEmpty())
-        instance.setManagedPack("modrinth", m_managed_id, m_managed_name, m_managed_version_id, version());
-    else
-        instance.setManagedPack("modrinth", "", name(), "", "");
+    setManagedPack(&instance);
 
     instance.setName(name());
     instance.saveNow();
@@ -248,27 +245,27 @@ bool ModrinthCreationTask::createInstance()
     auto root_modpack_path = FS::PathCombine(m_stagingPath, m_root_path);
     auto root_modpack_url = QUrl::fromLocalFile(root_modpack_path);
     // TODO make this work with other sorts of resource
-    QHash<QString, Resource*> resources;
     for (auto& file : m_files) {
         auto fileName = file.path;
         fileName = FS::RemoveInvalidPathChars(fileName);
         auto file_path = FS::PathCombine(root_modpack_path, fileName);
         if (!root_modpack_url.isParentOf(QUrl::fromLocalFile(file_path))) {
             // This means we somehow got out of the root folder, so abort here to prevent exploits
-            setError(tr("One of the files has a path that leads to an arbitrary location (%1). This is a security risk and isn't allowed.")
-                         .arg(fileName));
-            return false;
+            emitFailed(
+                tr("One of the files has a path that leads to an arbitrary location (%1). This is a security risk and isn't allowed.")
+                    .arg(fileName));
+            return;
         }
         if (fileName.startsWith("mods/")) {
             auto mod = new Mod(file_path);
             ModDetails d;
             d.mod_id = file_path;
             mod->setDetails(d);
-            resources[file.hash.toHex()] = mod;
+            m_resources[file.hash.toHex()] = mod;
         }
         if (file.downloads.empty()) {
-            setError(tr("The file '%1' is missing a download link. This is invalid in the pack format.").arg(fileName));
-            return false;
+            emitFailed(tr("The file '%1' is missing a download link. This is invalid in the pack format.").arg(fileName));
+            return;
         }
         qDebug() << "Will try to download" << file.downloads.front() << "to" << file_path;
         auto dl = Net::ApiDownload::makeFile(file.downloads.dequeue(), file_path);
@@ -288,14 +285,9 @@ bool ModrinthCreationTask::createInstance()
         }
     }
 
-    bool ended_well = false;
-
-    connect(downloadMods.get(), &NetJob::succeeded, this, [&ended_well]() { ended_well = true; });
-    connect(downloadMods.get(), &NetJob::failed, [this, &ended_well](const QString& reason) {
-        ended_well = false;
-        setError(reason);
-    });
-    connect(downloadMods.get(), &NetJob::finished, &loop, &QEventLoop::quit);
+    connect(downloadMods.get(), &NetJob::succeeded, this, &ModrinthCreationTask::ensureMetaLoop);
+    connect(downloadMods.get(), &NetJob::failed, this, &ModrinthCreationTask::emitFailed);
+    connect(downloadMods.get(), &NetJob::aborted, this, &ModrinthCreationTask::emitAborted);
     connect(downloadMods.get(), &NetJob::progress, [this](qint64 current, qint64 total) {
         setDetails(tr("%1 out of %2 complete").arg(current).arg(total));
         setProgress(current, total);
@@ -305,53 +297,6 @@ bool ModrinthCreationTask::createInstance()
     setStatus(tr("Downloading mods..."));
     downloadMods->start();
     m_task = downloadMods;
-
-    loop.exec();
-
-    if (!ended_well) {
-        for (auto resource : resources) {
-            delete resource;
-        }
-        return ended_well;
-    }
-
-    QEventLoop ensureMetaLoop;
-    QDir folder = FS::PathCombine(instance.modsRoot(), ".index");
-    auto ensureMetadataTask = makeShared<EnsureMetadataTask>(resources, folder, ModPlatform::ResourceProvider::MODRINTH);
-    connect(ensureMetadataTask.get(), &Task::succeeded, this, [&ended_well]() { ended_well = true; });
-    connect(ensureMetadataTask.get(), &Task::finished, &ensureMetaLoop, &QEventLoop::quit);
-    connect(ensureMetadataTask.get(), &Task::progress, [this](qint64 current, qint64 total) {
-        setDetails(tr("%1 out of %2 complete").arg(current).arg(total));
-        setProgress(current, total);
-    });
-    connect(ensureMetadataTask.get(), &Task::stepProgress, this, &ModrinthCreationTask::propagateStepProgress);
-
-    ensureMetadataTask->start();
-    m_task = ensureMetadataTask;
-
-    ensureMetaLoop.exec();
-    for (auto resource : resources) {
-        delete resource;
-    }
-    resources.clear();
-
-    // Update information of the already installed instance, if any.
-    if (m_instance && ended_well) {
-        setAbortable(false);
-        auto inst = m_instance.value();
-
-        // Only change the name if it didn't use a custom name, so that the previous custom name
-        // is preserved, but if we're using the original one, we update the version string.
-        // NOTE: This needs to come before the copyManagedPack call!
-        if (inst->name().contains(inst->getManagedPackVersionName()) && inst->name() != instance.name()) {
-            if (askForChangingInstanceName(m_parent, inst->name(), instance.name()) == InstanceNameChange::ShouldChange)
-                inst->setName(instance.name());
-        }
-
-        inst->copyManagedPack(instance);
-    }
-
-    return ended_well;
 }
 
 bool ModrinthCreationTask::parseManifest(const QString& index_path,
@@ -470,9 +415,88 @@ bool ModrinthCreationTask::parseManifest(const QString& index_path,
         }
 
     } catch (const JSONValidationError& e) {
-        setError(tr("Could not understand pack index:\n") + e.cause());
+        emitFailed(tr("Could not understand pack index:\n") + e.cause());
         return false;
     }
 
     return true;
+}
+
+void ModrinthCreationTask::ensureMetaLoop()
+{
+    QDir folder = FS::PathCombine(m_stagingPath, "minecraft", "jarmods");
+    auto ensureMetadataTask = makeShared<EnsureMetadataTask>(m_resources, folder, ModPlatform::ResourceProvider::MODRINTH);
+    connect(ensureMetadataTask.get(), &Task::succeeded, this, &ModrinthCreationTask::finishInstall);
+    connect(ensureMetadataTask.get(), &Task::failed, this, &ModrinthCreationTask::emitFailed);
+    connect(ensureMetadataTask.get(), &Task::aborted, this, &ModrinthCreationTask::emitAborted);
+    connect(ensureMetadataTask.get(), &Task::progress, [this](qint64 current, qint64 total) {
+        setDetails(tr("%1 out of %2 complete").arg(current).arg(total));
+        setProgress(current, total);
+    });
+    connect(ensureMetadataTask.get(), &Task::stepProgress, this, &ModrinthCreationTask::propagateStepProgress);
+
+    ensureMetadataTask->start();
+    m_task = ensureMetadataTask;
+}
+
+ModrinthCreationTask::~ModrinthCreationTask()
+{
+    for (auto resource : m_resources) {
+        delete resource;
+    }
+    m_resources.clear();
+}
+
+void ModrinthCreationTask::setManagedPack(BaseInstance* instance)
+{
+    // Don't add managed info to packs without an ID (most likely imported from ZIP)
+    if (!m_managed_id.isEmpty())
+        instance->setManagedPack("modrinth", m_managed_id, m_managed_name, m_managed_version_id, version());
+    else
+        instance->setManagedPack("modrinth", "", name(), "", "");
+}
+
+void ModrinthCreationTask::finishInstall()
+{
+    // Update information of the already installed instance, if any.
+    if (m_instance) {
+        setAbortable(false);
+        auto inst = m_instance.value();
+
+        // Only change the name if it didn't use a custom name, so that the previous custom name
+        // is preserved, but if we're using the original one, we update the version string.
+        // NOTE: This needs to come before the setManagedPack call!
+        if (inst->name().contains(inst->getManagedPackVersionName()) && inst->name() != name()) {
+            if (askForChangingInstanceName(m_parent, inst->name(), name()) == InstanceNameChange::ShouldChange)
+                inst->setName(name());
+        }
+
+        setManagedPack(m_instance->get());
+    }
+
+    if (shouldOverride()) {
+        bool deleteFailed = false;
+
+        setAbortable(false);
+        setStatus(tr("Removing old conflicting files..."));
+        qDebug() << "Removing old files";
+
+        for (const QString& path : m_files_to_remove) {
+            if (!QFile::exists(path))
+                continue;
+
+            qDebug() << "Removing" << path;
+
+            if (!QFile::remove(path)) {
+                qCritical() << "Could not remove" << path;
+                deleteFailed = true;
+            }
+        }
+
+        if (deleteFailed) {
+            emitFailed(tr("Failed to remove old conflicting files."));
+            return;
+        }
+    }
+    emitSucceeded();
 }

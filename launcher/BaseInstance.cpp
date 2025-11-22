@@ -183,16 +183,6 @@ void BaseInstance::setManagedPack(const QString& type,
     m_settings->set("ManagedPackName", name);
     m_settings->set("ManagedPackVersionID", versionId);
     m_settings->set("ManagedPackVersionName", version);
-}
-
-void BaseInstance::copyManagedPack(BaseInstance& other)
-{
-    m_settings->set("ManagedPack", other.isManagedPack());
-    m_settings->set("ManagedPackType", other.getManagedPackType());
-    m_settings->set("ManagedPackID", other.getManagedPackID());
-    m_settings->set("ManagedPackName", other.getManagedPackName());
-    m_settings->set("ManagedPackVersionID", other.getManagedPackVersionID());
-    m_settings->set("ManagedPackVersionName", other.getManagedPackVersionName());
 
     if (APPLICATION->settings()->get("AutomaticJavaSwitch").toBool() && m_settings->get("AutomaticJava").toBool() &&
         m_settings->get("OverrideJavaLocation").toBool()) {

@@ -169,7 +169,6 @@ class BaseInstance : public QObject, public std::enable_shared_from_this<BaseIns
     QString getManagedPackVersionID() const;
     QString getManagedPackVersionName() const;
     void setManagedPack(const QString& type, const QString& id, const QString& name, const QString& versionId, const QString& version);
-    void copyManagedPack(BaseInstance& other);
 
     virtual QStringList extraArguments();
 

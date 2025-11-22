@@ -43,7 +43,7 @@
 #include <memory>
 
 namespace Technic {
-class SolderPackInstallTask : public InstanceTask {
+class SolderPackInstallTask : public InstanceCreationTask {
     Q_OBJECT
    public:
     explicit SolderPackInstallTask(shared_qobject_ptr<QNetworkAccessManager> network,

@@ -866,7 +866,7 @@ void MainWindow::runModalTask(Task* task)
     loadDialog.execWithTask(task);
 }
 
-void MainWindow::instanceFromInstanceTask(InstanceTask* rawTask)
+void MainWindow::instanceFromInstanceTask(InstanceCreationTask* rawTask)
 {
     unique_qobject_ptr<Task> task(APPLICATION->instances()->wrapInstanceTask(rawTask));
     runModalTask(task.get());
@@ -915,7 +915,7 @@ void MainWindow::addInstance(const QString& url, const QMap<QString, QString>& e
 
     APPLICATION->settings()->set("LastUsedGroupForNewInstance", newInstDlg.instGroup());
 
-    InstanceTask* creationTask = newInstDlg.extractTask();
+    InstanceCreationTask* creationTask = newInstDlg.extractTask();
     if (creationTask) {
         instanceFromInstanceTask(creationTask);
     }

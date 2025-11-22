@@ -61,12 +61,12 @@ class NewInstanceDialog : public QDialog, public BasePageProvider {
 
     void updateDialogState();
 
-    void setSuggestedPack(const QString& name = QString(), InstanceTask* task = nullptr);
-    void setSuggestedPack(const QString& name, QString version, InstanceTask* task = nullptr);
+    void setSuggestedPack(const QString& name = QString(), InstanceCreationTask* task = nullptr);
+    void setSuggestedPack(const QString& name, QString version, InstanceCreationTask* task = nullptr);
     void setSuggestedIconFromFile(const QString& path, const QString& name);
     void setSuggestedIcon(const QString& key);
 
-    InstanceTask* extractTask();
+    InstanceCreationTask* extractTask();
 
     QString dialogTitle() override;
     QList<BasePage*> getPages() override;
@@ -91,7 +91,7 @@ class NewInstanceDialog : public QDialog, public BasePageProvider {
 
     QString InstIconKey;
     ImportPage* importPage = nullptr;
-    std::unique_ptr<InstanceTask> creationTask;
+    std::unique_ptr<InstanceCreationTask> creationTask;
 
     bool importIcon = false;
     QString importIconPath;

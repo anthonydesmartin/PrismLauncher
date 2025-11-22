@@ -59,7 +59,7 @@ class MinecraftLauncher;
 class BaseProfilerFactory;
 class InstanceView;
 class KonamiCode;
-class InstanceTask;
+class InstanceCreationTask;
 class LabeledToolButton;
 
 namespace Ui {
@@ -228,7 +228,7 @@ class MainWindow : public QMainWindow {
     void setInstanceActionsEnabled(bool enabled);
 
     void runModalTask(Task* task);
-    void instanceFromInstanceTask(InstanceTask* task);
+    void instanceFromInstanceTask(InstanceCreationTask* task);
 
    private:
     Ui::MainWindow* ui;

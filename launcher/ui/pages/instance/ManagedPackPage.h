@@ -21,7 +21,7 @@ namespace Ui {
 class ManagedPackPage;
 }
 
-class InstanceTask;
+class InstanceCreationTask;
 class InstanceWindow;
 
 class ManagedPackPage : public QWidget, public BasePage {
@@ -84,7 +84,7 @@ class ManagedPackPage : public QWidget, public BasePage {
      *
      *  Returns whether the task was successful.
      */
-    bool runUpdateTask(InstanceTask*);
+    bool runUpdateTask(InstanceCreationTask*);
 
    protected:
     InstanceWindow* m_instance_window = nullptr;

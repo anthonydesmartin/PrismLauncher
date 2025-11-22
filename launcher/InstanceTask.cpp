@@ -47,7 +47,7 @@ ShouldUpdate askIfShouldUpdate(QWidget* parent, QString original_version_name)
     return ShouldUpdate::Cancel;
 }
 
-QString InstanceName::name() const
+QString InstanceCreationTask::name() const
 {
     if (!m_modified_name.isEmpty())
         return modifiedName();
@@ -57,28 +57,25 @@ QString InstanceName::name() const
     return m_original_name;
 }
 
-QString InstanceName::originalName() const
+QString InstanceCreationTask::originalName() const
 {
     return m_original_name;
 }
 
-QString InstanceName::modifiedName() const
+QString InstanceCreationTask::modifiedName() const
 {
     if (!m_modified_name.isEmpty())
         return m_modified_name;
     return m_original_name;
 }
 
-QString InstanceName::version() const
+QString InstanceCreationTask::version() const
 {
     return m_original_version;
 }
 
-void InstanceName::setName(InstanceName& other)
+void InstanceCreationTask::setOriginalName(QString name, QString version)
 {
-    m_original_name = other.m_original_name;
-    m_original_version = other.m_original_version;
-    m_modified_name = other.m_modified_name;
+    m_original_name = name;
+    m_original_version = version;
 }
-
-InstanceTask::InstanceTask() : Task(), InstanceName() {}

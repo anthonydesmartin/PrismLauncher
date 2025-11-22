@@ -40,8 +40,7 @@
 #include <QUrl>
 #include "InstanceTask.h"
 
-class InstanceImportTask : public InstanceTask {
-    Q_OBJECT
+class InstanceImportTask : public InstanceCreationTask {
    public:
     explicit InstanceImportTask(const QUrl& sourceUrl, QWidget* parent = nullptr, QMap<QString, QString>&& extra_info = {});
     virtual ~InstanceImportTask() = default;

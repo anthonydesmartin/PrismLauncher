@@ -15,7 +15,7 @@ VanillaCreationTask::VanillaCreationTask(BaseVersion::Ptr version, QString loade
     , m_loader_version(std::move(loader_version))
 {}
 
-bool VanillaCreationTask::createInstance()
+void VanillaCreationTask::executeTask()
 {
     setStatus(tr("Creating instance from version %1").arg(m_version->name()));
 
@@ -34,5 +34,5 @@ bool VanillaCreationTask::createInstance()
     }
     instance_settings->resumeSave();
 
-    return true;
+    emitSucceeded();
 }

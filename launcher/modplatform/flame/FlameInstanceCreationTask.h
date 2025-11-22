@@ -35,7 +35,8 @@
 
 #pragma once
 
-#include "InstanceCreationTask.h"
+#include "BaseInstance.h"
+#include "InstanceTask.h"
 
 #include <optional>
 
@@ -67,15 +68,19 @@ class FlameCreationTask final : public InstanceCreationTask {
 
     bool abort() override;
 
-    bool updateInstance() override;
-    bool createInstance() override;
+    void createInstance();
+    void executeTask() override;
 
    private slots:
-    void idResolverSucceeded(QEventLoop&);
-    void setupDownloadJob(QEventLoop&);
+    void idResolverSucceeded();
+    void setupDownloadJob();
     void copyBlockedMods(QList<BlockedMod> const& blocked_mods);
-    void validateOtherResources(QEventLoop& loop);
+    void validateOtherResources();
     QString getVersionForLoader(QString uid, QString loaderType, QString version, QString mcVersion);
+    void finishInstall();
+
+   private:
+    void setManagedPack(BaseInstance* instance);
 
    private:
     QWidget* m_parent = nullptr;
@@ -94,4 +99,6 @@ class FlameCreationTask final : public InstanceCreationTask {
     std::optional<InstancePtr> m_instance;
 
     QStringList m_selectedOptionalMods;
+
+    QStringList m_files_to_remove;
 };

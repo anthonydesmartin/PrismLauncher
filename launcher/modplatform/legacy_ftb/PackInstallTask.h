@@ -10,7 +10,7 @@
 
 namespace LegacyFTB {
 
-class PackInstallTask : public InstanceTask {
+class PackInstallTask : public InstanceCreationTask {
     Q_OBJECT
 
    public:

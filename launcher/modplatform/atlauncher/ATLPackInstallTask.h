@@ -78,7 +78,7 @@ class UserInteractionSupport {
     virtual ~UserInteractionSupport() = default;
 };
 
-class PackInstallTask : public InstanceTask {
+class PackInstallTask : public InstanceCreationTask {
     Q_OBJECT
 
    public:

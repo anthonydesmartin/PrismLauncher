@@ -216,7 +216,7 @@ bool PackInstallTask::abort()
     }
 
     netJobContainer->abort();
-    return InstanceTask::abort();
+    return InstanceCreationTask::abort();
 }
 
 }  // namespace LegacyFTB
