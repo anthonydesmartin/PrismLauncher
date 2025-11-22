@@ -17,9 +17,9 @@
 
 #include "Application.h"
 #include "BuildConfig.h"
+#include "InstanceCreationTask.h"
 #include "InstanceImportTask.h"
 #include "InstanceList.h"
-#include "InstanceTask.h"
 #include "Json.h"
 #include "Markdown.h"
 #include "StringUtils.h"

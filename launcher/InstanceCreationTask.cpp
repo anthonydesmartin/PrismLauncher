@@ -1,4 +1,4 @@
-#include "InstanceTask.h"
+#include "InstanceCreationTask.h"
 
 #include "Application.h"
 #include "settings/SettingsObject.h"
@@ -6,14 +6,14 @@
 
 #include <QPushButton>
 
-InstanceNameChange askForChangingInstanceName(QWidget* parent, const QString& old_name, const QString& new_name)
+InstanceNameChange askForChangingInstanceName(QWidget* parent, const QString& oldName, const QString& newName)
 {
     auto dialog =
         CustomMessageBox::selectable(parent, QObject::tr("Change instance name"),
                                      QObject::tr("The instance's name seems to include the old version. Would you like to update it?\n\n"
                                                  "Old name: %1\n"
                                                  "New name: %2")
-                                         .arg(old_name, new_name),
+                                         .arg(oldName, newName),
                                      QMessageBox::Question, QMessageBox::No | QMessageBox::Yes);
     auto result = dialog->exec();
 
@@ -22,7 +22,7 @@ InstanceNameChange askForChangingInstanceName(QWidget* parent, const QString& ol
     return InstanceNameChange::ShouldKeep;
 }
 
-ShouldUpdate askIfShouldUpdate(QWidget* parent, QString original_version_name)
+ShouldUpdate askIfShouldUpdate(QWidget* parent, QString originalVersionName)
 {
     if (APPLICATION->settings()->get("SkipModpackUpdatePrompt").toBool())
         return ShouldUpdate::SkipUpdating;
@@ -33,7 +33,7 @@ ShouldUpdate askIfShouldUpdate(QWidget* parent, QString original_version_name)
             "One or more of your instances are from this same modpack%1. Do you want to create a "
             "separate instance, or update the existing one?\n\nNOTE: Make sure you made a backup of your important instance data before "
             "updating, as worlds can be corrupted and some configuration may be lost (due to pack overrides).")
-            .arg(original_version_name),
+            .arg(originalVersionName),
         QMessageBox::Information, QMessageBox::Cancel);
     QAbstractButton* update = info->addButton(QObject::tr("Update existing instance"), QMessageBox::AcceptRole);
     QAbstractButton* skip = info->addButton(QObject::tr("Create new instance"), QMessageBox::ResetRole);
@@ -49,33 +49,33 @@ ShouldUpdate askIfShouldUpdate(QWidget* parent, QString original_version_name)
 
 QString InstanceCreationTask::name() const
 {
-    if (!m_modified_name.isEmpty())
+    if (!m_modifiedName.isEmpty())
         return modifiedName();
-    if (!m_original_version.isEmpty())
-        return QString("%1 %2").arg(m_original_name, m_original_version);
+    if (!m_originalVersion.isEmpty())
+        return QString("%1 %2").arg(m_originalName, m_originalVersion);
 
-    return m_original_name;
+    return m_originalName;
 }
 
 QString InstanceCreationTask::originalName() const
 {
-    return m_original_name;
+    return m_originalName;
 }
 
 QString InstanceCreationTask::modifiedName() const
 {
-    if (!m_modified_name.isEmpty())
-        return m_modified_name;
-    return m_original_name;
+    if (!m_modifiedName.isEmpty())
+        return m_modifiedName;
+    return m_originalName;
 }
 
 QString InstanceCreationTask::version() const
 {
-    return m_original_version;
+    return m_originalVersion;
 }
 
 void InstanceCreationTask::setOriginalName(QString name, QString version)
 {
-    m_original_name = name;
-    m_original_version = version;
+    m_originalName = name;
+    m_originalVersion = version;
 }

@@ -79,7 +79,7 @@ class ManagedPackPage : public QWidget, public BasePage {
    protected:
     ManagedPackPage(BaseInstance* inst, InstanceWindow* instance_window, QWidget* parent = nullptr);
 
-    /** Run the InstanceTask, with a progress dialog and all.
+    /** Run the InstanceCreationTask, with a progress dialog and all.
      *  Similar to MainWindow::instanceFromInstanceTask
      *
      *  Returns whether the task was successful.

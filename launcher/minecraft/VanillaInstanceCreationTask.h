@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BaseVersion.h"
-#include "InstanceTask.h"
+#include "InstanceCreationTask.h"
 
 class VanillaCreationTask final : public InstanceCreationTask {
     Q_OBJECT
@@ -15,7 +15,7 @@ class VanillaCreationTask final : public InstanceCreationTask {
     // Version to update to / create of the instance.
     BaseVersion::Ptr m_version;
 
-    bool m_using_loader = false;
+    bool m_usingLoader = false;
     QString m_loader;
-    BaseVersion::Ptr m_loader_version;
+    BaseVersion::Ptr m_loaderVersion;
 };

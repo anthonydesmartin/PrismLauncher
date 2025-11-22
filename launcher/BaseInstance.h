@@ -285,10 +285,10 @@ class BaseInstance : public QObject, public std::enable_shared_from_this<BaseIns
    protected:
     void changeStatus(Status newStatus);
 
-    SettingsObjectPtr globalSettings() const { return m_global_settings.lock(); }
+    SettingsObjectPtr globalSettings() const { return m_globalSettings.lock(); }
 
-    bool isSpecificSettingsLoaded() const { return m_specific_settings_loaded; }
-    void setSpecificSettingsLoaded(bool loaded) { m_specific_settings_loaded = loaded; }
+    bool isSpecificSettingsLoaded() const { return m_specificSettingsLoaded; }
+    void setSpecificSettingsLoaded(bool loaded) { m_specificSettingsLoaded = loaded; }
 
    signals:
     /*!
@@ -322,8 +322,8 @@ class BaseInstance : public QObject, public std::enable_shared_from_this<BaseIns
     bool m_hasUpdate = false;
     bool m_hasBrokenVersion = false;
 
-    SettingsObjectWeakPtr m_global_settings;
-    bool m_specific_settings_loaded = false;
+    SettingsObjectWeakPtr m_globalSettings;
+    bool m_specificSettingsLoaded = false;
 };
 
 Q_DECLARE_METATYPE(shared_qobject_ptr<BaseInstance>)

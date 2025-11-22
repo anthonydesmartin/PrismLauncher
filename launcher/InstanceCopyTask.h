@@ -7,7 +7,7 @@
 #include "BaseVersion.h"
 #include "Filter.h"
 #include "InstanceCopyPrefs.h"
-#include "InstanceTask.h"
+#include "InstanceCreationTask.h"
 #include "net/NetJob.h"
 #include "settings/SettingsObject.h"
 #include "tasks/Task.h"

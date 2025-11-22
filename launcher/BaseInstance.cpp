@@ -73,7 +73,7 @@ bool shouldStopOnConsoleOverflow(SettingsObjectPtr settings)
 BaseInstance::BaseInstance(SettingsObjectPtr globalSettings, SettingsObjectPtr settings, const QString& rootDir) : QObject()
 {
     m_settings = settings;
-    m_global_settings = globalSettings;
+    m_globalSettings = globalSettings;
     m_rootDir = rootDir;
 
     m_settings->registerSetting("name", "Unnamed Instance");

@@ -36,7 +36,7 @@
 #pragma once
 
 #include "BaseInstance.h"
-#include "InstanceTask.h"
+#include "InstanceCreationTask.h"
 
 #include <optional>
 
@@ -52,18 +52,18 @@ class FlameCreationTask final : public InstanceCreationTask {
     Q_OBJECT
 
    public:
-    FlameCreationTask(const QString& staging_path,
-                      SettingsObjectPtr global_settings,
+    FlameCreationTask(const QString& stagingPath,
+                      SettingsObjectPtr globalSettings,
                       QWidget* parent,
                       QString id,
-                      QString version_id,
-                      QString original_instance_id = {})
-        : InstanceCreationTask(), m_parent(parent), m_managedId(std::move(id)), m_managedVersionId(std::move(version_id))
+                      QString versionId,
+                      QString originalInstanceId = {})
+        : InstanceCreationTask(), m_parent(parent), m_managedId(std::move(id)), m_managedVersionId(std::move(versionId))
     {
-        setStagingPath(staging_path);
-        setParentSettings(global_settings);
+        setStagingPath(stagingPath);
+        setParentSettings(globalSettings);
 
-        m_original_instance_id = std::move(original_instance_id);
+        m_originalInstanceId = std::move(originalInstanceId);
     }
 
     bool abort() override;
@@ -74,7 +74,7 @@ class FlameCreationTask final : public InstanceCreationTask {
    private slots:
     void idResolverSucceeded();
     void setupDownloadJob();
-    void copyBlockedMods(QList<BlockedMod> const& blocked_mods);
+    void copyBlockedMods(QList<BlockedMod> const& blockedMods);
     void validateOtherResources();
     QString getVersionForLoader(QString uid, QString loaderType, QString version, QString mcVersion);
     void finishInstall();
@@ -100,5 +100,5 @@ class FlameCreationTask final : public InstanceCreationTask {
 
     QStringList m_selectedOptionalMods;
 
-    QStringList m_files_to_remove;
+    QStringList m_filesToRemove;
 };

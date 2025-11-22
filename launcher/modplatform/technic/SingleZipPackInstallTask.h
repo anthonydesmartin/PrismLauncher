@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "InstanceTask.h"
+#include "InstanceCreationTask.h"
 #include "archive/ArchiveReader.h"
 #include "net/NetJob.h"
 

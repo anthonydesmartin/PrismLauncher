@@ -21,7 +21,7 @@
 #include <QFuture>
 #include <QFutureWatcher>
 
-#include "InstanceTask.h"
+#include "InstanceCreationTask.h"
 #include "PackHelpers.h"
 
 namespace FTBImportAPP {

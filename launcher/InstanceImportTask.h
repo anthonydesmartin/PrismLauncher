@@ -38,11 +38,11 @@
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QUrl>
-#include "InstanceTask.h"
+#include "InstanceCreationTask.h"
 
 class InstanceImportTask : public InstanceCreationTask {
    public:
-    explicit InstanceImportTask(const QUrl& sourceUrl, QWidget* parent = nullptr, QMap<QString, QString>&& extra_info = {});
+    explicit InstanceImportTask(const QUrl& sourceUrl, QWidget* parent = nullptr, QMap<QString, QString>&& extraInfo = {});
     virtual ~InstanceImportTask() = default;
     bool abort() override;
 
@@ -75,7 +75,7 @@ class InstanceImportTask : public InstanceCreationTask {
 
     // Extra info we might need, that's available before, but can't be derived from
     // the source URL / the resource it points to alone.
-    QMap<QString, QString> m_extra_info;
+    QMap<QString, QString> m_extraInfo;
 
     // FIXME: nuke
     QWidget* m_parent;

@@ -35,7 +35,7 @@
 
 #pragma once
 
-#include <InstanceTask.h>
+#include <InstanceCreationTask.h>
 #include <net/NetJob.h>
 #include <tasks/Task.h>
 

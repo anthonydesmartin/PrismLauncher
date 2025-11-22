@@ -10,7 +10,7 @@
 #include <QVector>
 
 #include "BaseInstance.h"
-#include "InstanceTask.h"
+#include "InstanceCreationTask.h"
 
 class Resource;
 class ModrinthCreationTask final : public InstanceCreationTask {
@@ -25,18 +25,18 @@ class ModrinthCreationTask final : public InstanceCreationTask {
     };
 
    public:
-    ModrinthCreationTask(QString staging_path,
-                         SettingsObjectPtr global_settings,
+    ModrinthCreationTask(QString stagingPath,
+                         SettingsObjectPtr globalSettings,
                          QWidget* parent,
                          QString id,
-                         QString version_id = {},
-                         QString original_instance_id = {})
-        : InstanceCreationTask(), m_parent(parent), m_managed_id(std::move(id)), m_managed_version_id(std::move(version_id))
+                         QString versionId = {},
+                         QString originalInstanceId = {})
+        : InstanceCreationTask(), m_parent(parent), m_managedId(std::move(id)), m_managedVersionId(std::move(versionId))
     {
-        setStagingPath(staging_path);
-        setParentSettings(global_settings);
+        setStagingPath(stagingPath);
+        setParentSettings(globalSettings);
 
-        m_original_instance_id = std::move(original_instance_id);
+        m_originalInstanceId = std::move(originalInstanceId);
     }
     virtual ~ModrinthCreationTask() override;
 
@@ -49,7 +49,7 @@ class ModrinthCreationTask final : public InstanceCreationTask {
     void finishInstall();
 
    private:
-    bool parseManifest(const QString&, std::vector<File>&, bool set_internal_data = true, bool show_optional_dialog = true);
+    bool parseManifest(const QString&, std::vector<File>&, bool setInternalData = true, bool showOptionalDialog = true);
 
     void ensureMetaLoop();
     void setManagedPack(BaseInstance* instance);
@@ -57,17 +57,17 @@ class ModrinthCreationTask final : public InstanceCreationTask {
    private:
     QWidget* m_parent = nullptr;
 
-    QString m_minecraft_version, m_fabric_version, m_quilt_version, m_forge_version, m_neoForge_version;
-    QString m_managed_id, m_managed_version_id, m_managed_name;
+    QString m_minecraftVersion, m_fabricVersion, m_quiltVersion, m_forgeVersion, m_neoForgeVersion;
+    QString m_managedId, m_managedVersionId, m_managedName;
 
     std::vector<File> m_files;
     Task::Ptr m_task;
 
     std::optional<InstancePtr> m_instance;
 
-    QString m_root_path = "minecraft";
+    QString m_rootPath = "minecraft";
 
-    QStringList m_files_to_remove;
+    QStringList m_filesToRemove;
 
     QHash<QString, Resource*> m_resources;
 };
