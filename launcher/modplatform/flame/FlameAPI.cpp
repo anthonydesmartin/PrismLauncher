@@ -297,15 +297,15 @@ Task::Ptr FlameAPI::getVersionFromHash(QString hash, ModPlatform::IndexedVersion
             }
 
             for (auto match : data_arr) {
-                auto match_obj = Json::ensureObject(match, {});
-                auto file_obj = Json::ensureObject(match_obj, "file", {});
+                auto match_obj = match.toObject();
+                auto file_obj = match_obj["file"].toObject();
 
                 if (match_obj.isEmpty() || file_obj.isEmpty()) {
                     qWarning() << "Fingerprint match is empty!";
                     continue;
                 }
 
-                auto fingerprint = QString::number(Json::ensureVariant(file_obj, "fileFingerprint").toUInt());
+                auto fingerprint = QString::number(file_obj["fileFingerprint"].toInt());
                 if (fingerprint != hash)
                     continue;
                 output = FlameMod::loadIndexedPackVersion(file_obj);
