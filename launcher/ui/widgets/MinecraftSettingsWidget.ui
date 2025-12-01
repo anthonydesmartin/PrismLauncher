@@ -522,7 +522,7 @@ It is most likely you will need to change the path - please refer to the mod's w
            <item>
             <widget class="QCheckBox" name="latestMCVersionCheckBox">
              <property name="text">
-              <string>Always use the latest minecraft version</string>
+              <string>Automatically update to the latest version of Minecraft</string>
              </property>
             </widget>
            </item>
