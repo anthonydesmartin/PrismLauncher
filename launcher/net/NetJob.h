@@ -80,6 +80,7 @@ class NetJob : public ConcurrentTask {
     shared_qobject_ptr<QNetworkAccessManager> m_network;
 
     int m_try = 1;
-    bool m_ask_retry = true;
-    int m_manual_try = 0;
+    bool m_askRetry = true;
+    int m_manualTry = 0;
+    bool m_isDialogDisplayed = false;
 };
