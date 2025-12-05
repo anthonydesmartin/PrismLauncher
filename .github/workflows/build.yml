@@ -5,6 +5,7 @@ on:
     branches:
       - "develop"
       - "release-*"
+      - "revert-ftb"
     paths:
       # File types
       - "**.cpp"
